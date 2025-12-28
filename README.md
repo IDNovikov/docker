@@ -1,8 +1,13 @@
 Docker
+
 docker run	-	Запуск контейнера
+
 Сигнатура 
+
 docker run [OPTIONS] IMAGE [:TAG|@DIGEST] [COMMAND] [ARG…]	
+
 Флаги:	
+
 -d	запуск контейнера в качестве отдельного процесса
 -p
 example:
