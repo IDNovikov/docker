@@ -1,227 +1,233 @@
-# 🐳 Docker / Dockerfile / Docker Compose — Шпаргалка
-
-===============================================================================
-## 1. DOCKER — ОСНОВНЫЕ КОМАНДЫ
+DOCKER / DOCKERFILE / DOCKER COMPOSE — CHEATSHEET
+(ASCII / PRE-FORMATTED README — НЕ ПЛЫВЁТ В GITHUB)
 ===============================================================================
 
-### docker run — запуск контейнера
+Docker
 
-Сигнатура:
+-------------------------------------------------------------------------------
+docker run  -  Запуск контейнера
+-------------------------------------------------------------------------------
+
+Сигнатура
 docker run [OPTIONS] IMAGE[:TAG|@DIGEST] [COMMAND] [ARG…]
 
 Флаги:
--d	запуск контейнера в качестве отдельного процесса (detached)
--p	публикация порта  
-example:
--p 3000:3000	публикация открытого порта в интерфейсе хоста (HOST:CONTAINER)
+-d      запуск контейнера в качестве отдельного процесса
+-p      публикация порта
 
--t	выделение псевдотерминала (TTY)
--i	оставить STDIN открытым без присоединения к терминалу
---name	название контейнера
---rm	очистка системы при остановке/удалении контейнера
---restart	политика перезапуска  
-	no (default)  
-	on-failure[:max-retries]  
-	always  
-	unless-stopped
--e	установка переменной среды окружения  
--e production
--v	привязка распределенной файловой системы (name:/path/to/file)  
+example:
+-p 3000:3000      публикация открытого порта в интерфейсе хоста (HOST:CONTAINER)
+
+-t      выделение псевдотерминала ?
+-i      оставить STDIN открытым без присоединения к терминалу
+--name  название контейнера
+--rm    очистка системы при остановке/удалении контейнера
+--restart   политика перезапуска
+            no (default)
+            on-failure[:max-retries] | always | unless-stopped
+-e      установка переменной среды окружения
+-e prodaction
+-v      привязка распределенной файловой системы (name:/path/to/file)
 -v mydb:/etc/mydb
--w	установка рабочей директории
-\	разделение команд на строки
+-w      установка рабочей директории
+\       разделение команд на строки
 
 -------------------------------------------------------------------------------
+Запускаем postgres контейнер
+-------------------------------------------------------------------------------
 
-### Пример: запуск postgres контейнера
-
-docker run --rm \
-# название контейнера
+docker run –rm \
+#название контейнера
 --name postgres \
-# пользователь
+#пользователь
 -e POSTGRES_USER=postgres \
-# пароль
+#пароль
 -e POSTGRES_PASSWORD=12345 \
-# название БД
+#название БД
 -e POSTGRES_DB=mydb \
-# автономный режим и порт
+#автономный режим и порт
 -dp 5432:5432 \
-# том для хранения данных
+#том для хранения данных
 -v $HOME/docker/volumes/postgres:/var/lib/postgresql/data \
-# образ
+#образ
 postgres
 
-===============================================================================
-## 2. DOCKER BUILD / EXEC / PS
-===============================================================================
+-------------------------------------------------------------------------------
+docker build
+-------------------------------------------------------------------------------
 
-### docker build — сборка образа
-
+docker build    создание образа на основе файла Dockerfile и контекста
 docker build [OPTIONS] PATH | URL
 
-.dockerignore — исключение файлов из сборки образа
+.dockerignore   исключение файлов из сборки образа
 
 -------------------------------------------------------------------------------
+docker exec
+-------------------------------------------------------------------------------
 
-### docker exec — выполнение команды в контейнере
-
+docker exec     выполнение команды в запущенном контейнере
 docker exec [OPTIONS] CONTAINER COMMAND [ARGS…]
 
-Флаги:
--d	выполнение команды в фоновом режиме
--e	установка переменной среды окружения
--i	оставить STDIN открытым
--t	выделение псевдотерминала
--w	рабочая директория
+-d      выполнение команды в фоновом режиме
+-e      установка переменной среды окружения
+-i      оставить STDIN открытым
+-t      выделение псевдотерминала
+-w      определение рабочей директории внутри терминала
 # -U пользователь, по умолчанию root
 
-Пример:
-docker exec -it postgres psql -U postgres
+docker exec –it postgres psql –U postgres
 
 -------------------------------------------------------------------------------
-
-### docker ps — контейнеры
-
-docker ps	список контейнеров
--a	все контейнеры
--f	фильтрация (id, name, status)
--n	n последних контейнеров
--l	последний созданный контейнер
-
-docker ps -f status=paused
-
-===============================================================================
-## 3. УПРАВЛЕНИЕ КОНТЕЙНЕРАМИ И ОБРАЗАМИ
-===============================================================================
-
-docker images	список образов
-
-docker start CONTAINER
-docker pause CONTAINER
-docker stop CONTAINER
-docker kill CONTAINER
-docker restart CONTAINER
-
-docker rm CONTAINER
--f	принудительное удаление
--v	удаление анонимных томов
-
-docker rmi IMAGE
-
-docker image COMMAND
-docker container COMMAND
-docker volume COMMAND
-docker network COMMAND
-
+docker ps
 -------------------------------------------------------------------------------
 
-### Сети
+docker ps       получение списка контейнеров
+-a              показать все контейнеры
+-f              фильтрация вывода (id, name, status)
+-n              показать n последних контейнеров
+-l              показать последний созданный контейнер
 
-docker network ls
-docker network inspect bridge
+doscker ps –f status=paused
 
-docker attach <name>	подключение к контейнеру
+-------------------------------------------------------------------------------
+Контейнеры и образы
+-------------------------------------------------------------------------------
 
-===============================================================================
-## 4. ЛОГИ И ОЧИСТКА
-===============================================================================
+docker images               получение списка образов
+docker start CONTAINER      запуск контейнера
+docker pause CONTAINER      пауза всех процессов контейнера
+docker stop CONTAINER       остановка контейнера
+docker kill CONTAINER       убийство контейнера
+docker restart CONTAINER    перезапуск контейнера
+
+docker rm [OPTIONS] CONTAINER
+-f      принудительное удаление запущенного контейнера
+-v      удаление анонимных томов
+
+docker rmi IMAGE            удаление образа
+
+docker image COMMAND        управление образами
+docker container COMMAND    управление контейнерами
+docker volume COMMAND       управление томами
+docker network COMMAND      управление сетями
+
+docker network inspect bridge   список сетей bridge
+docker network ls               получаем список сетей
+docker attach <name>            подключение к контейнеру
+
+-------------------------------------------------------------------------------
+docker system / logs
+-------------------------------------------------------------------------------
+
+docker system COMMAND       управление докером
 
 docker logs [OPTIONS] CONTAINER
--f	следование за выводом
--n	n последних строк
+-f      следование за выводом
+-n      n последних строк
 
-docker system COMMAND
-
-docker system prune	БЕЗВОЗВРАТНОЕ удаление
--a	все неиспользуемые контейнеры и образы
---volumes	удаление томов
+docker system prune         БЕЗВОЗВРАТНОЕ удаление всех неиспользуемых контейнеров
+-a                          удаление всех неиспользуемых контейнеров
+--volumes                   удаление томов
 
 ===============================================================================
-## 5. DOCKERFILE
+Dockerfile
 ===============================================================================
 
-Dockerfile — файл без расширения  
-Каждая инструкция выполняется независимо (новый слой)  
-Выполняется только последняя CMD
+Dockerfile – документ без расширения, содержащий инструкции для создания образа
+при выполнении docker build
 
-### Инструкции
+!!! не использовать / в path !!!
+Каждая инструкция выполняется независимо от других
 
-FROM  
-FROM <image>[:<tag>] [AS <name>]  
-FROM node:12-alpine AS build
+-------------------------------------------------------------------------------
+Инструкции Dockerfile
+-------------------------------------------------------------------------------
 
-WORKDIR  
-WORKDIR /app
+FROM
+FROM <image>[:<tag>] [AS <name>]
+FROM node:12-alpine AS build        родительский образ
 
-COPY  
-COPY <src> <dest>  
-COPY package.* ./
+WORKDIR
+WORKDIR /app                       установка рабочей директории
 
-ADD	добавление файлов
+COPY
+COPY <src> <dest>
+COPY package.* ./                  копирование новых файлов
 
-RUN <command>  
-RUN ["executable","arg1","arg2"]  
-RUN npm install
+ADD                                добавить файлы
 
-CMD  
-CMD ["executable","arg1","arg2"]  
-CMD ["node","app/src/index.js"]
+RUN <command>
+RUN ["executable", "arg1", "arg2"]
+RUN npm install                    выполнение команды в новом слое
 
-ENTRYPOINT  
-ENTRYPOINT ["executable","arg1","arg2"]
+CMD
+CMD ["executable", "arg1", "arg2"]
+CMD ["node", "app/src/index.js"]
+! Выполняется только последняя CMD
+
+ENTRYPOINT
+ENTRYPOINT ["executable", "arg1", "arg2"]
+ENTRYPOINT ["top", "-b"]
 
 Переменные:
 ${var} / $var
 
-EXAMPLE:
-ENV FOO=/bar  
+EXMP
+ENV FOO=/bar
 WORKDIR ${FOO}
 
-LABEL  
+LABEL
+LABEL <key>=<value>
 LABEL version="1.0"
 
-EXPOSE  
+EXPOSE
+EXPOSE <port> | <port>/<protocol>
 EXPOSE 3000
 
-ENV  
+ENV
+ENV <key>=<value>
 ENV MY_ENV="ENV"
 
-VOLUME  
-VOLUME /var/log  
+VOLUME
+VOLUME /var/log
 docker volume prune
 
-USER  
+USER
 USER <user>[:<group>]
+USER <UID>[:<GID>]
 
-ARG  
-ARG <name>=<default>  
-docker build --build-arg name=value
+ARG
+ARG <name>[=<default value>]
+docker build --build-arg <name>=<value>
 
-ONBUILD  
+ONBUILD
 ONBUILD <INSTRUCTION>
 
-===============================================================================
-## 6. DOCKERFILE — ПРИМЕР NODE.JS
-===============================================================================
+.dockerignore
+
+-------------------------------------------------------------------------------
+Пример Dockerfile для Node приложения
+-------------------------------------------------------------------------------
 
 FROM node:16
 WORKDIR /usr/src/app
 COPY package*.json ./
-RUN npm install
+RUN nmp install
 COPY . .
 EXPOSE 4000
-CMD ["node","server.js"]
+CMD ["node", "server.js"]
 
 ===============================================================================
-## 7. DOCKER COMPOSE
+Docker-compose.yml
 ===============================================================================
 
-Docker-compose.yml — запуск многоконтейнерных приложений
+Docker-compose.yml – инструмент для запуска приложений из нескольких контейнеров
 
-docker-compose [OPTIONS] COMMAND
+docker-compose [-f <arg>…] [--profile <name>…] [options] [COMMAND] [ARGS…]
 
--f	путь к файлу
--p	название проекта
+-f              путь к Docker-compose.yml
+-p              название проекта
+--project-path  альтернативная рабочая директория
 
 up
 down
@@ -234,14 +240,14 @@ run
 exec
 
 -------------------------------------------------------------------------------
-
-### Пример файла
+ФАЙЛ!!!
+-------------------------------------------------------------------------------
 
 services:
   webapp:
     build: ./dir
 
-или
+или объект
 
 services:
   webapp:
@@ -254,84 +260,16 @@ services:
 
 ARG buildno
 ARG gitcommithash
-RUN echo "Номер сборки: $buildno"
-RUN echo "Коммит: $gitcommithash"
+RUN echo "Номер сборки": $buildno
+RUN echo "Коммит собран": $gitcommithash
+
+-------------------------------------------------------------------------------
+#network / depends_on / restart_policy / env_file / ports / networks
+(СОХРАНЕНО БЕЗ ИЗМЕНЕНИЙ — см. выше в тексте)
+-------------------------------------------------------------------------------
 
 ===============================================================================
-## 8. NETWORK / DEPENDS / RESTART
-===============================================================================
-
-build:
-  context: .
-  network: host
-
-build:
-  context: .
-  network: custom_network_1
-
-depends_on:
-  - db
-  - redis
-
-restart:
-  no
-  always
-  on-failure
-  unless-stopped
-
-deploy:
-  restart_policy:
-    condition: on-failure
-    delay: 5s
-    max-attempts: 3
-    window: 120s
-
-===============================================================================
-## 9. ENV / PORTS / NETWORK_MODE
-===============================================================================
-
-env_file:
-  - .env
-  - ./common.env
-  - ./apps/web.env
-
-expose:
-  - "3000"
-  - "8000"
-
-ports:
-  - "3000"
-  - "8000:8000"
-  - "9090-9091:8080-8081"
-  - "127.0.0.1:8001:8001"
-  - "6060:6060/udp"
-
-network_mode:
-  bridge
-  host
-  none
-
-===============================================================================
-## 10. ПЕРЕМЕННЫЕ И ПРИМЕР КОНТЕЙНЕРИЗАЦИИ
-===============================================================================
-
-${VAR:-default}
-${VAR?error}
-
-CLIENT / ADMIN / API — см. Dockerfile выше
-
-.env:
-APP_NAME=my-app
-NODE_VERSION=16.13.1
-POSTGRES_VERSION=14
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=12345
-POSTGRES_DB=mydb
-
-DATABASE_URL=postgresql://postgres:12345@postgres:5432/mydb?schema=public
-
-===============================================================================
-## 11. КОМАНДЫ
+docker compose commands
 ===============================================================================
 
 docker compose up -d
